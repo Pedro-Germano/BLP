@@ -10,22 +10,17 @@ from scipy import optimize
 # ..riskAversion = double
 # ..covMatrix = covariance matrix of expected excess returns for assetClasses
 class Portfolio:
-    def __init__(self, 
-        assetClasses=('US Equity', 'Foreign EQ', 'Emerging EQ'),
-        assetWeights=[0.33,0.33,0.34],
-        riskAversion=2.5,
-        covMatrix=None
-    ):
+    def __init__(self, assetClasses, assetWeights, riskAversion, covMatrix):
         self.assetClasses = assetClasses
         self.weights = np.asarray(assetWeights)
         self.riskAversion = riskAversion
         self.covMatrix = covMatrix
-        if covMatrix is None:
+        if covMatrix is None: # If no covariance matrix is provided
             self.covMatrix = pd.DataFrame(
                 dict(zip(self.assetClasses, [[0,0]]*len(self.assetClasses)))
             ).cov()
         self.returns = self.computeReturns()
-        
+
     def computeReturns(self):
         # Converting from 1D array to 2D column vector
         return (
@@ -100,9 +95,7 @@ class Optimizer:
             print(self.result.message)
         
     def expectedReturn(self, weights):
-        return np.asscalar(
-            np.dot(np.atleast_2d(weights), self.parameters.PiHat)
-        ) 
+        return (np.dot(np.atleast_2d(weights), self.parameters.PiHat)).item() 
         
     def sd(self, weights):
         w = np.atleast_2d(weights)
